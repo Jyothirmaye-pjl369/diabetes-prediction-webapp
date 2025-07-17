@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-heartbeat"></i>
+                <span>DiabetesCheck</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#dataset" class="nav-link">Dataset</a>
+                <a href="#visualize" class="nav-link">Visualize</a>
+                <a href="#info" class="nav-link">Info</a>
+                <a href="#history" class="nav-link">History</a>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <section id="home" class="section active">
+            <div class="container">
+                <div class="hero-section">
+                    <h1><i class="fas fa-brain"></i> AI-Powered Diabetes Risk Prediction</h1>
+                    <p class="subtitle">Machine Learning Model using Random Forest Algorithm</p>
+                    <div class="ml-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Model Accuracy: {{ "%.2f"|format(accuracy*100) }}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-tree"></i>
+                            <span>Algorithm: Random Forest</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-database"></i>
+                            <span>Dataset: Pima Indians Diabetes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2><i class="fas fa-cogs"></i> ML Model Input Features</h2>
+                        <p>Enter the 8 key features used by our Random Forest classifier for diabetes prediction</p>
+                        <div class="model-info">
+                            <span class="feature-count">8 Features</span>
+                            <span class="model-type">Random Forest</span>
+                            <span class="training-data">768 Training Samples</span>
+                        </div>
+                    </div>
+
+                    <form id="prediction-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pregnancies">
+                                    <i class="fas fa-baby"></i>
+                                    Number of Pregnancies
+                                    <span class="info-tooltip" data-tooltip="Number of times pregnant">ℹ️</span>
+                                </label>
+                                <input type="number" id="pregnancies" name="pregnancies" min="0" max="20" required>
+                                <div class="input-range">Range: 0-20</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="glucose">
+                                    <i class="fas fa-tint"></i>
+                                    Glucose Level (mg/dL)
+                                    <span class="info-tooltip" data-tooltip="Plasma glucose concentration (normal: 70-100 mg/dL)">ℹ️</span>
+                                </label>
+                                <input type="number" id="glucose" name="glucose" min="0" max="300" required>
+                                <div class="input-range">Normal: 70-100 mg/dL</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bloodpressure">
+                                    <i class="fas fa-heartbeat"></i>
+                                    Blood Pressure (mmHg)
+                                    <span class="info-tooltip" data-tooltip="Diastolic blood pressure (normal: 60-80 mmHg)">ℹ️</span>
+                                </label>
+                                <input type="number" id="bloodpressure" name="bloodpressure" min="0" max="200" required>
+                                <div class="input-range">Normal: 60-80 mmHg</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="skinthickness">
+                                    <i class="fas fa-ruler"></i>
+                                    Skin Thickness (mm)
+                                    <span class="info-tooltip" data-tooltip="Triceps skin fold thickness">ℹ️</span>
+                                </label>
+                                <input type="number" id="skinthickness" name="skinthickness" min="0" max="100" required>
+                                <div class="input-range">Range: 0-100 mm</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="insulin">
+                                    <i class="fas fa-syringe"></i>
+                                    Insulin Level (μU/mL)
+                                    <span class="info-tooltip" data-tooltip="2-Hour serum insulin level">ℹ️</span>
+                                </label>
+                                <input type="number" id="insulin" name="insulin" min="0" max="1000" required>
+                                <div class="input-range">Normal: 16-166 μU/mL</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bmi">
+                                    <i class="fas fa-weight"></i>
+                                    BMI (kg/m²)
+                                    <span class="info-tooltip" data-tooltip="Body Mass Index (normal: 18.5-24.9)">ℹ️</span>
+                                </label>
+                                <input type="number" step="0.1" id="bmi" name="bmi" min="10" max="70" required>
+                                <div class="input-range">Normal: 18.5-24.9 kg/m²</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dpf">
+                                    <i class="fas fa-dna"></i>
+                                    Diabetes Pedigree Function
+                                    <span class="info-tooltip" data-tooltip="Genetic diabetes likelihood based on family history">ℹ️</span>
+                                </label>
+                                <input type="number" step="0.001" id="dpf" name="dpf" min="0" max="5" required>
+                                <div class="input-range">Range: 0.08-2.42</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="age">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Age (years)
+                                    <span class="info-tooltip" data-tooltip="Age in years">ℹ️</span>
+                                </label>
+                                <input type="number" id="age" name="age" min="1" max="120" required>
+                                <div class="input-range">Range: 1-120 years</div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="sample-btn" class="btn-secondary">
+                                <i class="fas fa-flask"></i>
+                                Use Sample Data
+                            </button>
+                            <button type="button" id="clear-btn" class="btn-secondary">
+                                <i class="fas fa-eraser"></i>
+                                Clear Form
+                            </button>
+                            <button type="button" id="feature-importance-btn" class="btn-secondary">
+                                <i class="fas fa-chart-bar"></i>
+                                Feature Importance
+                            </button>
+                            <button type="submit" id="predict-btn" class="btn-primary">
+                                <i class="fas fa-brain"></i>
+                                Run ML Prediction
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="result" class="result-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dataset" class="section">
+            <div class="container">
+                <h2><i class="fas fa-database"></i> Dataset Explorer & Analysis</h2>
+                <div class="dataset-controls">
+                    <button id="load-dataset-btn" class="btn-primary">
+                        <i class="fas fa-upload"></i>
+                        Load Dataset
+                    </button>
+                    <button id="dataset-stats-btn" class="btn-secondary">
+                        <i class="fas fa-chart-pie"></i>
+                        Dataset Statistics
+                    </button>
+                    <button id="correlation-btn" class="btn-secondary">
+                        <i class="fas fa-project-diagram"></i>
+                        Correlation Matrix
+                    </button>
+                    <button id="batch-predict-btn" class="btn-secondary">
+                        <i class="fas fa-file-csv"></i>
+                        Batch Prediction
+                    </button>
+                </div>
+
+                <div id="dataset-container" class="dataset-container">
+                    <div class="dataset-placeholder">
+                        <i class="fas fa-table"></i>
+                        <p>Click "Load Dataset" to explore the training data</p>
+                    </div>
+                </div>
+
+                <div id="batch-upload" class="batch-upload hidden">
+                    <h3><i class="fas fa-upload"></i> Batch Prediction Upload</h3>
+                    <p>Upload a CSV file with the same 8 features for bulk predictions</p>
+                    <div class="upload-area">
+                        <input type="file" id="csv-upload" accept=".csv" />
+                        <label for="csv-upload">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Click to upload CSV file</span>
+                        </label>
+                    </div>
+                    <div id="batch-results" class="batch-results"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="visualize" class="section">
+            <div class="container">
+                <h2><i class="fas fa-chart-line"></i> Data Visualization & ML Insights</h2>
+                <div class="viz-controls">
+                    <button id="feature-dist-btn" class="btn-primary">
+                        <i class="fas fa-chart-bar"></i>
+                        Feature Distributions
+                    </button>
+                    <button id="outcome-analysis-btn" class="btn-secondary">
+                        <i class="fas fa-pie-chart"></i>
+                        Outcome Analysis
+                    </button>
+                    <button id="feature-importance-viz-btn" class="btn-secondary">
+                        <i class="fas fa-sort-amount-down"></i>
+                        Feature Importance
+                    </button>
+                    <button id="model-comparison-btn" class="btn-secondary">
+                        <i class="fas fa-balance-scale"></i>
+                        Model Comparison
+                    </button>
+                </div>
+
+                <div id="visualization-container" class="visualization-container">
+                    <div class="viz-placeholder">
+                        <i class="fas fa-chart-area"></i>
+                        <p>Select a visualization option to analyze the ML model and data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="info" class="section">
+            <div class="container">
+                <h2><i class="fas fa-robot"></i> About the AI/ML Model</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <i class="fas fa-tree"></i>
+                        <h3>Random Forest Algorithm</h3>
+                        <p>Uses 100 decision trees to make predictions. Each tree votes, and the majority decision determines the final prediction with high accuracy.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-database"></i>
+                        <h3>Training Dataset</h3>
+                        <p>Trained on the Pima Indians Diabetes dataset with 768 samples and 8 features. Data is preprocessed using StandardScaler for optimal performance.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-cogs"></i>
+                        <h3>Model Pipeline</h3>
+                        <p>Feature scaling → Random Forest → Prediction with confidence score. The model outputs both binary classification and probability scores.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Performance Metrics</h3>
+                        <p>Model accuracy: {{ "%.2f"|format(accuracy*100) }}%. Uses cross-validation and feature importance analysis for robust predictions.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>Feature Importance</h3>
+                        <p>Glucose level and BMI are typically the most important features, followed by age and diabetes pedigree function in the prediction model.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Model Limitations</h3>
+                        <p>This is a screening tool based on historical data. Always consult healthcare professionals for medical diagnosis and treatment decisions.</p>
+                    </div>
+                </div>
+                
+                <div class="ml-details">
+                    <h3><i class="fas fa-code"></i> Technical Implementation</h3>
+                    <div class="tech-stack">
+                        <span class="tech-item">Python</span>
+                        <span class="tech-item">Scikit-learn</span>
+                        <span class="tech-item">Pandas</span>
+                        <span class="tech-item">NumPy</span>
+                        <span class="tech-item">Flask</span>
+                        <span class="tech-item">Random Forest</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="history" class="section">
+            <div class="container">
+                <h2><i class="fas fa-history"></i> Prediction History & Model Performance</h2>
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <i class="fas fa-bullseye"></i>
+                        <h3>Model Accuracy</h3>
+                        <span class="metric-value">{{ "%.2f"|format(accuracy*100) }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-tree"></i>
+                        <h3>Trees in Forest</h3>
+                        <span class="metric-value">100</span>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-database"></i>
+                        <h3>Training Samples</h3>
+                        <span class="metric-value">768</span>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-layer-group"></i>
+                        <h3>Features Used</h3>
+                        <span class="metric-value">8</span>
+                    </div>
+                </div>
+                
+                <div id="history-container" class="history-container">
+                    <div class="no-history">
+                        <i class="fas fa-brain"></i>
+                        <p>No ML predictions made yet. Use the model to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 DiabetesCheck ML Model. Built with Python, Scikit-learn & Flask. Educational AI/ML project - consult healthcare professionals for medical advice.</p>
+        </div>
+    </footer>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Running ML inference...</p>
+        <small>Processing through Random Forest model</small>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

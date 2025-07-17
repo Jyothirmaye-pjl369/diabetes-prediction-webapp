@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Assessment - AI Health Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_simple.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-heartbeat"></i>
+                <span>DiabetesCheck AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Assessment</span>
+                </a>
+                <a href="#results" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Results</span>
+                </a>
+                <a href="#history" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="#info" class="nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Information</span>
+                </a>
+                <a href="#tips" class="nav-link">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Health Tips</span>
+                </a>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="container">
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h1><i class="fas fa-brain"></i> AI-Powered Diabetes Risk Assessment</h1>
+                        <p class="subtitle">Advanced Machine Learning Model for Early Diabetes Detection</p>
+                        <div class="hero-stats">
+                            <div class="stat-card">
+                                <i class="fas fa-accuracy"></i>
+                                <div class="stat-info">
+                                    <span class="stat-number">{{ "%.1f"|format(accuracy*100) }}%</span>
+                                    <span class="stat-label">Accuracy</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-users"></i>
+                                <div class="stat-info">
+                                    <span class="stat-number">768</span>
+                                    <span class="stat-label">Training Cases</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-tree"></i>
+                                <div class="stat-info">
+                                    <span class="stat-number">100</span>
+                                    <span class="stat-label">Decision Trees</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assessment-container">
+                    <div class="progress-bar">
+                        <div class="progress-step active" data-step="1">
+                            <i class="fas fa-user"></i>
+                            <span>Personal Info</span>
+                        </div>
+                        <div class="progress-step" data-step="2">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Health Data</span>
+                        </div>
+                        <div class="progress-step" data-step="3">
+                            <i class="fas fa-brain"></i>
+                            <span>AI Analysis</span>
+                        </div>
+                    </div>
+
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2><i class="fas fa-clipboard-check"></i> Health Assessment Form</h2>
+                            <p>Please fill in your health parameters for accurate diabetes risk assessment</p>
+                        </div>
+
+                        <form id="prediction-form">
+                            <div class="form-sections">
+                                <!-- Personal Information -->
+                                <div class="form-section active" id="section-1">
+                                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="age">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                Age (years)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="age" name="age" min="1" max="120" required>
+                                            <div class="input-hint">Range: 1-120 years</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="pregnancies">
+                                                <i class="fas fa-baby"></i>
+                                                Number of Pregnancies
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="pregnancies" name="pregnancies" min="0" max="20" required>
+                                            <div class="input-hint">Enter 0 if not applicable</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="bmi">
+                                                <i class="fas fa-weight"></i>
+                                                BMI (kg/m²)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" step="0.1" id="bmi" name="bmi" min="10" max="70" required>
+                                            <div class="input-hint">Normal: 18.5-24.9 kg/m²</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Health Measurements -->
+                                <div class="form-section" id="section-2">
+                                    <h3><i class="fas fa-heartbeat"></i> Health Measurements</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="glucose">
+                                                <i class="fas fa-tint"></i>
+                                                Blood Glucose (mg/dL)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="glucose" name="glucose" min="0" max="300" required>
+                                            <div class="input-hint">Fasting: 70-100 mg/dL (Normal)</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="bloodpressure">
+                                                <i class="fas fa-heartbeat"></i>
+                                                Blood Pressure (mmHg)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="bloodpressure" name="bloodpressure" min="0" max="200" required>
+                                            <div class="input-hint">Normal: 60-80 mmHg (Diastolic)</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="insulin">
+                                                <i class="fas fa-syringe"></i>
+                                                Insulin Level (μU/mL)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="insulin" name="insulin" min="0" max="1000" required>
+                                            <div class="input-hint">Normal: 16-166 μU/mL</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="skinthickness">
+                                                <i class="fas fa-ruler"></i>
+                                                Skin Thickness (mm)
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" id="skinthickness" name="skinthickness" min="0" max="100" required>
+                                            <div class="input-hint">Triceps skin fold thickness</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="dpf">
+                                                <i class="fas fa-dna"></i>
+                                                Family History Score
+                                                <span class="required">*</span>
+                                            </label>
+                                            <input type="number" step="0.001" id="dpf" name="dpf" min="0" max="5" required>
+                                            <div class="input-hint">Diabetes Pedigree Function: 0.08-2.42</div>
+                                            <div class="health-indicator"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" id="prev-btn" class="btn-secondary" style="display: none;">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Previous
+                                </button>
+                                
+                                <div class="action-buttons">
+                                    <button type="button" id="sample-btn" class="btn-secondary">
+                                        <i class="fas fa-flask"></i>
+                                        Load Sample Data
+                                    </button>
+                                    <button type="button" id="clear-btn" class="btn-secondary">
+                                        <i class="fas fa-eraser"></i>
+                                        Clear Form
+                                    </button>
+                                    <button type="button" id="bmi-calculator" class="btn-secondary">
+                                        <i class="fas fa-calculator"></i>
+                                        BMI Calculator
+                                    </button>
+                                </div>
+
+                                <button type="button" id="next-btn" class="btn-primary">
+                                    Next
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                                
+                                <button type="submit" id="predict-btn" class="btn-primary" style="display: none;">
+                                    <i class="fas fa-brain"></i>
+                                    Run AI Analysis
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="result" class="result-container">
+                            <div class="result-header">
+                                <h3><i class="fas fa-check-circle"></i> Assessment Result</h3>
+                            </div>
+                            <div class="result-body">
+                                <div class="result-summary">
+                                    <div class="summary-item">
+                                        <span class="summary-label">Diabetes Risk Level:</span>
+                                        <span class="summary-value" id="risk-level">Moderate</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Recommended Action:</span>
+                                        <span class="summary-value" id="recommended-action">Lifestyle Changes</span>
+                                    </div>
+                                </div>
+
+                                <div class="result-details" id="result-details">
+                                    <!-- Detailed results will be populated here -->
+                                </div>
+
+                                <div class="result-actions">
+                                    <button class="btn-primary" onclick="switchToSection('results')">
+                                        <i class="fas fa-chart-line"></i>
+                                        View Detailed Results
+                                    </button>
+                                    <button class="btn-secondary" onclick="switchToSection('history')">
+                                        <i class="fas fa-history"></i>
+                                        View History
+                                    </button>
+                                    <button class="btn-secondary" onclick="generateReport()">
+                                        <i class="fas fa-file-medical"></i>
+                                        Generate Report
+                                    </button>
+                                    <button class="btn-secondary" onclick="shareResults()">
+                                        <i class="fas fa-share-alt"></i>
+                                        Share Results
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="section">
+            <div class="container">
+                <h2><i class="fas fa-chart-line"></i> Your Assessment Results</h2>
+                <div id="results-content" class="results-content">
+                    <div class="no-results">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No Assessment Results Yet</h3>
+                        <p>Complete the health assessment to see your diabetes risk analysis</p>
+                        <button class="btn-primary" onclick="switchToSection('home')">
+                            <i class="fas fa-play"></i>
+                            Start Assessment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <div class="container">
+                <h2><i class="fas fa-history"></i> Assessment History</h2>
+                <div id="history-content" class="history-content">
+                    <div class="history-header">
+                        <div class="history-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="total-assessments">0</span>
+                                <span class="stat-label">Total Assessments</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="high-risk-count">0</span>
+                                <span class="stat-label">High Risk Results</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="avg-risk">0%</span>
+                                <span class="stat-label">Average Risk</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn-secondary" onclick="exportHistory()">
+                                <i class="fas fa-download"></i>
+                                Export History
+                            </button>
+                            <button class="btn-secondary" onclick="clearHistory()">
+                                <i class="fas fa-trash"></i>
+                                Clear History
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="history-list" class="history-list">
+                        <div class="no-history">
+                            <i class="fas fa-clock"></i>
+                            <h3>No Assessment History</h3>
+                            <p>Your assessment history will appear here after completing evaluations</p>
+                            <button class="btn-primary" onclick="switchToSection('home')">
+                                <i class="fas fa-play"></i>
+                                Start First Assessment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Report Modal -->
+        <div id="report-modal" class="modal">
+            <div class="modal-content report-modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-file-medical"></i> Professional Health Report</h3>
+                    <button class="modal-close" onclick="closeReportModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="report-content" class="report-content">
+                        <div class="report-loading">
+                            <div class="spinner"></div>
+                            <p>Generating comprehensive health report...</p>
+                        </div>
+                    </div>
+                    <div class="report-actions">
+                        <button class="btn-primary" onclick="exportReport()">
+                            <i class="fas fa-download"></i>
+                            Export Report
+                        </button>
+                        <button class="btn-secondary" onclick="printReport()">
+                            <i class="fas fa-print"></i>
+                            Print Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <section id="info" class="section">
+            <div class="container">
+                <h2><i class="fas fa-info-circle"></i> Understanding Diabetes & AI Analysis</h2>
+                <div class="info-content">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <i class="fas fa-heartbeat"></i>
+                            <h3>What is Diabetes?</h3>
+                            <p>Diabetes is a chronic condition where your body cannot properly process blood sugar (glucose), leading to high blood sugar levels that can cause serious health complications.</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Risk Factors</h3>
+                            <p>Age, family history, obesity, high blood pressure, and sedentary lifestyle are major risk factors for developing Type 2 diabetes.</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-tree"></i>
+                            <h3>Our AI Model</h3>
+                            <p>Uses Random Forest algorithm with 100 decision trees, trained on 768 cases with {{ "%.1f"|format(accuracy*100) }}% accuracy for reliable predictions.</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-stethoscope"></i>
+                            <h3>Early Detection</h3>
+                            <p>Early detection helps prevent complications. Our AI analyzes 8 key health parameters to assess your diabetes risk.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Health Tips Section -->
+        <section id="tips" class="section">
+            <div class="container">
+                <h2><i class="fas fa-lightbulb"></i> Diabetes Prevention & Management</h2>
+                <div class="tips-content">
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <i class="fas fa-apple-alt"></i>
+                            <h3>Healthy Diet</h3>
+                            <ul>
+                                <li>Choose whole grains over refined carbs</li>
+                                <li>Eat plenty of vegetables and fruits</li>
+                                <li>Limit sugary drinks and snacks</li>
+                                <li>Control portion sizes</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-running"></i>
+                            <h3>Regular Exercise</h3>
+                            <ul>
+                                <li>Aim for 150 minutes of moderate activity weekly</li>
+                                <li>Include strength training exercises</li>
+                                <li>Take regular walks after meals</li>
+                                <li>Stay active throughout the day</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-weight"></i>
+                            <h3>Weight Management</h3>
+                            <ul>
+                                <li>Maintain a healthy BMI (18.5-24.9)</li>
+                                <li>Focus on gradual weight loss</li>
+                                <li>Monitor your progress regularly</li>
+                                <li>Seek professional guidance if needed</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-user-md"></i>
+                            <h3>Regular Check-ups</h3>
+                            <ul>
+                                <li>Monitor blood glucose levels</li>
+                                <li>Check blood pressure regularly</li>
+                                <li>Annual comprehensive health exams</li>
+                                <li>Follow up with healthcare providers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Emergency Section -->
+        <section id="emergency" class="section">
+            <div class="container">
+                <div class="emergency-content">
+                    <div class="emergency-header">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Emergency Warning Signs</h2>
+                    </div>
+                    <div class="emergency-body">
+                        <div class="emergency-grid">
+                            <div class="emergency-card">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <h4>Severe Symptoms</h4>
+                                <ul>
+                                    <li>Extreme thirst and frequent urination</li>
+                                    <li>Blurred vision or vision changes</li>
+                                    <li>Unexplained weight loss</li>
+                                    <li>Fatigue and weakness</li>
+                                    <li>Slow-healing wounds or infections</li>
+                                </ul>
+                            </div>
+                            <div class="emergency-card">
+                                <i class="fas fa-phone"></i>
+                                <h4>When to Seek Help</h4>
+                                <ul>
+                                    <li>Blood glucose > 300 mg/dL</li>
+                                    <li>Persistent vomiting</li>
+                                    <li>Difficulty breathing</li>
+                                    <li>Confusion or dizziness</li>
+                                    <li>Severe abdominal pain</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="emergency-actions">
+                            <button class="btn-emergency" onclick="window.open('tel:911', '_blank')">
+                                <i class="fas fa-phone"></i>
+                                Call 911
+                            </button>
+                            <button class="btn-emergency" onclick="window.open('https://www.diabetes.org/diabetes/dka-ketoacidosis-ketones', '_blank')">
+                                <i class="fas fa-external-link-alt"></i>
+                                Diabetes Emergency Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Health Checker Section -->
+        <section id="quick-checker" class="section">
+            <div class="container">
+                <div class="quick-checker-content">
+                    <div class="quick-checker-header">
+                        <h2><i class="fas fa-heartbeat"></i> Quick Health Checker</h2>
+                    </div>
+                    <div class="quick-checker-body">
+                        <div class="quick-checker-grid">
+                            <div class="checker-item">
+                                <label>Current Blood Glucose (mg/dL)</label>
+                                <input type="number" id="quick-glucose" placeholder="Enter glucose level">
+                                <button onclick="checkGlucose()">Check</button>
+                            </div>
+                            <div class="checker-item">
+                                <label>Current BMI</label>
+                                <input type="number" step="0.1" id="quick-bmi" placeholder="Enter BMI">
+                                <button onclick="checkBMI()">Check</button>
+                            </div>
+                        </div>
+                        <div id="quick-results" class="quick-results"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-heartbeat"></i> DiabetesCheck AI</h4>
+                    <p>Advanced AI-powered diabetes risk assessment for early detection and prevention.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Important Notice</h4>
+                    <p>This tool is for educational purposes only. Always consult healthcare professionals for medical advice and diagnosis.</p>
+                    <div class="disclaimer">
+                        <p><strong>Disclaimer:</strong> This AI model provides risk assessments based on historical data. Results should not replace professional medical consultation.</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Emergency & Resources</h4>
+                    <div class="emergency-links">
+                        <a href="tel:911" class="emergency-link">
+                            <i class="fas fa-phone"></i>
+                            Emergency: 911
+                        </a>
+                        <a href="https://www.diabetes.org/" target="_blank" class="resource-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            American Diabetes Association
+                        </a>
+                        <a href="https://www.cdc.gov/diabetes/" target="_blank" class="resource-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            CDC Diabetes Information
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DiabetesCheck AI. Built with Python, Flask & Machine Learning.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BMI Calculator Modal -->
+    <div id="bmi-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calculator"></i> BMI Calculator</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="bmi-calculator">
+                    <div class="form-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" placeholder="Enter height in cm">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="Enter weight in kg">
+                    </div>
+                    <button id="calculate-bmi" class="btn-primary">Calculate BMI</button>
+                    <div id="bmi-result" class="bmi-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Analyzing Your Health Data</h3>
+            <p>AI is processing your information...</p>
+            <div class="loading-progress">
+                <div class="progress-bar-loading">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text">Processing...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script_simple.js') }}"></script>
+</body>
+</html>
