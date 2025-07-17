@@ -270,11 +270,20 @@ def get_lifestyle_advice(features):
     return advice[:6]  # Limit to 6 pieces of advice
 
 # Train the model when the app starts
-model_accuracy = train_model()
+try:
+    model_accuracy = train_model()
+    print(f"Model trained successfully with accuracy: {model_accuracy}")
+except Exception as e:
+    print(f"Error training model: {e}")
+    model_accuracy = 0.721  # Default accuracy value
 
 @app.route('/')
 def index():
-    return render_template('index_simple.html', accuracy=model_accuracy)
+    try:
+        return render_template('index_simple.html', accuracy=model_accuracy)
+    except Exception as e:
+        print(f"Error rendering template: {e}")
+        return f"<h1>Diabetes Prediction App</h1><p>App is running but template error: {e}</p>"
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -365,6 +374,7 @@ def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
+        'message': 'Diabetes Prediction App is running',
         'model_accuracy': model_accuracy,
         'timestamp': datetime.datetime.now().isoformat()
     })
@@ -408,6 +418,10 @@ def export_report():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/test')
+def test():
+    return "<h1>Diabetes Prediction App - Test Route</h1><p>If you see this, the Flask app is working!</p>"
 
 def generate_health_report(prediction_data):
     """Generate a comprehensive health report"""

@@ -16,8 +16,18 @@ def load_model():
     try:
         with open('diabetes_model.pkl', 'rb') as f:
             model = pickle.load(f)
+        print("Model loaded successfully")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        model = None
+    
+    try:
         with open('scaler.pkl', 'rb') as f:
             scaler = pickle.load(f)
+        print("Scaler loaded successfully")
+    except Exception as e:
+        print(f"Error loading scaler: {e}")
+        scaler = None
     except FileNotFoundError:
         print("Model files not found. Training new model...")
         train_model()
