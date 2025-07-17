@@ -6,6 +6,9 @@ An advanced AI-powered web application for diabetes risk assessment using machin
 ![Flask](https://img.shields.io/badge/flask-v2.0+-green.svg)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.0+-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Deployment](https://img.shields.io/badge/deployment-ready-brightgreen.svg)
+
+> **🚀 Live Demo**: [Deploy on Render](https://render.com/deploy) | **📖 Deployment Guide**: [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
 
 ## 🌟 Features
 
@@ -167,9 +170,17 @@ python app_simple.py
 
 ### Production Deployment
 The application is ready for deployment on platforms like:
+- **Render**: One-click deployment with `render.yaml` ([Guide](RENDER_DEPLOYMENT.md))
 - **Heroku**: Use the included `Procfile`
-- **Render**: Flask application deployment
 - **AWS/Google Cloud**: Container deployment
+
+#### Deploy to Render
+1. Fork this repository
+2. Sign up at [render.com](https://render.com)
+3. Connect your GitHub repository
+4. Follow the [deployment guide](RENDER_DEPLOYMENT.md)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
 ## 🤝 Contributing
 
