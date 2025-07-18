@@ -7,23 +7,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
     
+    // Global navigation function
+    window.navigateToSection = function(sectionId) {
+        // Remove active class from all nav links and sections
+        navLinks.forEach(nl => nl.classList.remove('active'));
+        sections.forEach(section => section.classList.remove('active'));
+        
+        // Add active class to corresponding nav link
+        const navLink = document.querySelector(`[href="#${sectionId}"]`);
+        if (navLink) {
+            navLink.classList.add('active');
+        }
+        
+        // Show corresponding section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            
+            // Load content for specific sections
+            if (sectionId === 'results') {
+                loadResultsContent();
+            } else if (sectionId === 'tips') {
+                loadHealthTipsContent();
+            }
+        }
+    };
+    
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Remove active class from all nav links and sections
-            navLinks.forEach(nl => nl.classList.remove('active'));
-            sections.forEach(section => section.classList.remove('active'));
-            
-            // Add active class to clicked nav link
-            this.classList.add('active');
-            
-            // Show corresponding section
             const targetId = this.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
+            navigateToSection(targetId);
         });
     });
 
@@ -66,7 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 hideLoading();
                 displayResult(data);
-                updateResultsSection(data);
+                // Automatically navigate to results after prediction
+                setTimeout(() => {
+                    navigateToSection('results');
+                }, 2000);
             })
             .catch(error => {
                 hideLoading();
@@ -95,6 +112,368 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStepDisplay();
         });
     }
+
+    // Load Results Content
+    async function loadResultsContent() {
+        const loadingDiv = document.getElementById('results-loading');
+        const noResultsDiv = document.getElementById('no-results');
+        const contentDiv = document.getElementById('results-content');
+        
+        // Show loading
+        loadingDiv.style.display = 'block';
+        noResultsDiv.style.display = 'none';
+        contentDiv.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/detailed_analysis');
+            const data = await response.json();
+            
+            if (data.success) {
+                displayResultsContent(data.analysis);
+            } else {
+                showNoResults();
+            }
+        } catch (error) {
+            console.error('Error loading results:', error);
+            showNoResults();
+        }
+    }
+    
+    function displayResultsContent(analysis) {
+        const loadingDiv = document.getElementById('results-loading');
+        const contentDiv = document.getElementById('results-content');
+        
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+        
+        const riskLevel = analysis.overall_risk.level;
+        const riskPercentage = analysis.overall_risk.percentage;
+        const riskDescription = analysis.overall_risk.description;
+        
+        contentDiv.innerHTML = `
+            <div class="risk-summary-card">
+                <div class="risk-header">
+                    <div class="risk-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="risk-info">
+                        <h2>${riskLevel}</h2>
+                        <p>${riskPercentage}</p>
+                        <span>${riskDescription}</span>
+                    </div>
+                </div>
+                <div class="risk-meter">
+                    <div class="risk-meter-bar">
+                        <div class="risk-meter-fill" style="width: ${riskPercentage}"></div>
+                    </div>
+                    <div class="risk-meter-labels">
+                        <span>Low</span>
+                        <span>Moderate</span>
+                        <span>High</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Risk Factors</h3>
+                    <div class="factors-list">
+                        ${analysis.risk_factors.map(factor => `
+                            <div class="factor-item high-risk">
+                                <h5>${factor.factor}</h5>
+                                <p><strong>Value:</strong> ${factor.value}</p>
+                                <p><strong>Impact:</strong> ${factor.impact}</p>
+                                <p><strong>Action:</strong> ${factor.action}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="analysis-card">
+                    <h3><i class="fas fa-shield-check"></i> Protective Factors</h3>
+                    <div class="factors-list">
+                        ${analysis.protective_factors.map(factor => `
+                            <div class="factor-item protective">
+                                <h5>${factor.factor}</h5>
+                                <p>${factor.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-card">
+                <h3><i class="fas fa-calendar-alt"></i> Recommended Action Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-icon immediate">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Immediate Action</h4>
+                            <p>${analysis.timeline.immediate}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon short-term">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Short-term (1-4 weeks)</h4>
+                            <p>${analysis.timeline.short_term}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon long-term">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Long-term (ongoing)</h4>
+                            <p>${analysis.timeline.long_term}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <div class="action-buttons">
+                    <button onclick="generateReport()" class="btn btn-secondary">
+                        <i class="fas fa-file-medical"></i>
+                        Generate Report
+                    </button>
+                    <button onclick="navigateToSection('tips')" class="btn btn-primary">
+                        <i class="fas fa-lightbulb"></i>
+                        Get Health Tips
+                    </button>
+                    <button onclick="retakeAssessment()" class="btn btn-outline">
+                        <i class="fas fa-redo"></i>
+                        Retake Assessment
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    function showNoResults() {
+        document.getElementById('results-loading').style.display = 'none';
+        document.getElementById('no-results').style.display = 'block';
+    }
+    
+    // Load Health Tips Content
+    async function loadHealthTipsContent() {
+        const loadingDiv = document.getElementById('tips-loading');
+        const noTipsDiv = document.getElementById('no-tips');
+        const contentDiv = document.getElementById('tips-content');
+        
+        // Show loading
+        loadingDiv.style.display = 'block';
+        noTipsDiv.style.display = 'none';
+        contentDiv.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/health_tips');
+            const data = await response.json();
+            
+            if (data.success) {
+                displayHealthTipsContent(data);
+            } else {
+                showNoTips();
+            }
+        } catch (error) {
+            console.error('Error loading health tips:', error);
+            showNoTips();
+        }
+    }
+    
+    function displayHealthTipsContent(data) {
+        const loadingDiv = document.getElementById('tips-loading');
+        const contentDiv = document.getElementById('tips-content');
+        
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+        
+        const tips = data.health_tips;
+        
+        contentDiv.innerHTML = `
+            <div class="risk-banner">
+                <div class="risk-banner-content">
+                    <div class="risk-banner-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="risk-banner-text">
+                        <h3>Your Current Risk Level: ${data.risk_level}</h3>
+                        <p>Assessment completed on ${new Date(data.assessment_date).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-navigation">
+                <button class="tip-category-btn active" data-category="diet" onclick="showTipCategory('diet')">
+                    <i class="fas fa-apple-alt"></i>
+                    Diet & Nutrition
+                </button>
+                <button class="tip-category-btn" data-category="exercise" onclick="showTipCategory('exercise')">
+                    <i class="fas fa-dumbbell"></i>
+                    Exercise & Fitness
+                </button>
+                <button class="tip-category-btn" data-category="lifestyle" onclick="showTipCategory('lifestyle')">
+                    <i class="fas fa-heart"></i>
+                    Lifestyle Changes
+                </button>
+                <button class="tip-category-btn" data-category="monitoring" onclick="showTipCategory('monitoring')">
+                    <i class="fas fa-chart-line"></i>
+                    Health Monitoring
+                </button>
+                <button class="tip-category-btn" data-category="medical" onclick="showTipCategory('medical')">
+                    <i class="fas fa-user-md"></i>
+                    Medical Care
+                </button>
+            </div>
+            
+            <div class="tips-sections">
+                <div class="tips-section active" id="diet-tips">
+                    <div class="tips-header-section">
+                        <h2><i class="fas fa-apple-alt"></i> Diet & Nutrition Recommendations</h2>
+                        <p>Personalized dietary guidance to help manage your diabetes risk</p>
+                    </div>
+                    <div class="tips-list">
+                        ${tips.diet.map((tip, index) => `
+                            <div class="tip-card">
+                                <div class="tip-content">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-apple-alt"></i>
+                                    </div>
+                                    <div class="tip-text">
+                                        <h4>Nutrition Recommendation #${index + 1}</h4>
+                                        <p>${tip}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="tips-section" id="exercise-tips">
+                    <div class="tips-header-section">
+                        <h2><i class="fas fa-dumbbell"></i> Exercise & Fitness Plan</h2>
+                        <p>Safe and effective exercise recommendations based on your health profile</p>
+                    </div>
+                    <div class="tips-list">
+                        ${tips.exercise.map((tip, index) => `
+                            <div class="tip-card">
+                                <div class="tip-content">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="tip-text">
+                                        <h4>Exercise Guidance #${index + 1}</h4>
+                                        <p>${tip}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="tips-section" id="lifestyle-tips">
+                    <div class="tips-header-section">
+                        <h2><i class="fas fa-heart"></i> Lifestyle Modifications</h2>
+                        <p>Daily habits and lifestyle changes to improve your overall health</p>
+                    </div>
+                    <div class="tips-list">
+                        ${tips.lifestyle.map((tip, index) => `
+                            <div class="tip-card">
+                                <div class="tip-content">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="tip-text">
+                                        <h4>Lifestyle Change #${index + 1}</h4>
+                                        <p>${tip}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="tips-section" id="monitoring-tips">
+                    <div class="tips-header-section">
+                        <h2><i class="fas fa-chart-line"></i> Health Monitoring Guidelines</h2>
+                        <p>How to track your progress and monitor important health metrics</p>
+                    </div>
+                    <div class="tips-list">
+                        ${tips.monitoring.map((tip, index) => `
+                            <div class="tip-card">
+                                <div class="tip-content">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="tip-text">
+                                        <h4>Monitoring Guideline #${index + 1}</h4>
+                                        <p>${tip}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="tips-section" id="medical-tips">
+                    <div class="tips-header-section">
+                        <h2><i class="fas fa-user-md"></i> Medical Care & Professional Guidance</h2>
+                        <p>When and how to seek professional medical care</p>
+                    </div>
+                    <div class="tips-list">
+                        ${tips.medical.map((tip, index) => `
+                            <div class="tip-card">
+                                <div class="tip-content">
+                                    <div class="tip-icon">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="tip-text">
+                                        <h4>Medical Recommendation #${index + 1}</h4>
+                                        <p>${tip}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function showNoTips() {
+        document.getElementById('tips-loading').style.display = 'none';
+        document.getElementById('no-tips').style.display = 'block';
+    }
+    
+    // Global functions for tip navigation
+    window.showTipCategory = function(category) {
+        // Update active button
+        const categoryButtons = document.querySelectorAll('.tip-category-btn');
+        categoryButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-category="${category}"]`).classList.add('active');
+        
+        // Show corresponding section
+        const sections = document.querySelectorAll('.tips-section');
+        sections.forEach(section => section.classList.remove('active'));
+        document.getElementById(`${category}-tips`).classList.add('active');
+    };
+    
+    window.retakeAssessment = function() {
+        if (confirm('Are you sure you want to retake the assessment?')) {
+            navigateToSection('home');
+            if (form) {
+                form.reset();
+                resetHealthIndicators();
+                currentStep = 1;
+                updateStepDisplay();
+            }
+        }
+    };
 
     // BMI Calculator
     const bmiBtn = document.getElementById('bmi-calculator');

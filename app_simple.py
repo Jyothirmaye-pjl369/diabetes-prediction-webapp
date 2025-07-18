@@ -423,137 +423,315 @@ def export_report():
 def test():
     return "<h1>Diabetes Prediction App - Test Route</h1><p>If you see this, the Flask app is working!</p>"
 
-@app.route('/visualizations')
-def visualizations():
-    """Serve the data visualization page"""
-    return render_template('visualizations.html')
-
-@app.route('/api/feature_distribution')
-def feature_distribution():
-    """API endpoint for feature distribution data"""
-    try:
-        # Get user's prediction history for personalized insights
-        history = session.get('prediction_history', [])
-        
-        if not history:
-            # Return sample distribution data if no history
-            return jsonify({
-                'success': True,
-                'data': get_sample_feature_distribution(),
-                'message': 'Sample distribution data (complete an assessment for personalized data)'
-            })
-        
-        # Generate distribution based on user's data
-        distribution_data = generate_user_feature_distribution(history)
-        
-        return jsonify({
-            'success': True,
-            'data': distribution_data,
-            'user_assessments': len(history)
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-@app.route('/api/outcome_analysis')
-def outcome_analysis():
-    """API endpoint for outcome analysis data"""
+@app.route('/api/health_tips')
+def get_health_tips():
+    """Get personalized health tips based on user's latest assessment"""
     try:
         history = session.get('prediction_history', [])
-        
         if not history:
             return jsonify({
-                'success': True,
-                'data': get_sample_outcome_analysis(),
-                'message': 'Sample outcome data'
+                'success': False,
+                'error': 'No assessment history found. Please complete an assessment first.'
             })
         
-        outcome_data = generate_user_outcome_analysis(history)
+        latest_assessment = history[-1]
+        features = latest_assessment['features']
+        prediction = latest_assessment['prediction']
+        probability = latest_assessment['probability']
+        
+        # Generate personalized health tips
+        health_tips = generate_personalized_health_tips(features, prediction, probability)
         
         return jsonify({
             'success': True,
-            'data': outcome_data,
-            'user_assessments': len(history)
+            'health_tips': health_tips,
+            'risk_level': get_risk_category(probability),
+            'assessment_date': latest_assessment['timestamp']
         })
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/feature_importance')
-def feature_importance_api():
-    """API endpoint for feature importance visualization"""
+@app.route('/api/detailed_analysis')
+def get_detailed_analysis():
+    """Get detailed analysis of the latest assessment"""
     try:
-        # Get feature importance from the model
-        feature_names = [
-            'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
-            'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
-        ]
-        
-        if model is None:
-            load_model()
-        
-        importance_scores = model.feature_importances_
-        
-        importance_data = []
-        for name, score in zip(feature_names, importance_scores):
-            importance_data.append({
-                'feature': name,
-                'importance': float(score),
-                'percentage': float(score * 100)
+        history = session.get('prediction_history', [])
+        if not history:
+            return jsonify({
+                'success': False,
+                'error': 'No assessment history found. Please complete an assessment first.'
             })
         
-        # Sort by importance
-        importance_data.sort(key=lambda x: x['importance'], reverse=True)
+        latest_assessment = history[-1]
+        features = latest_assessment['features']
+        prediction = latest_assessment['prediction']
+        probability = latest_assessment['probability']
+        
+        # Generate detailed analysis
+        analysis = generate_detailed_risk_analysis(features, prediction, probability)
         
         return jsonify({
             'success': True,
-            'data': importance_data
+            'analysis': analysis
         })
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/model_comparison')
-def model_comparison():
-    """API endpoint for model comparison data"""
-    try:
-        comparison_data = {
-            'models': [
-                {
-                    'name': 'Medical Rule-Based Model',
-                    'accuracy': 75.0,
-                    'precision': 73.2,
-                    'recall': 78.1,
-                    'f1_score': 75.6,
-                    'description': 'Based on established medical guidelines and risk factors'
-                },
-                {
-                    'name': 'Typical Random Forest',
-                    'accuracy': 72.1,
-                    'precision': 60.7,
-                    'recall': 61.8,
-                    'f1_score': 61.3,
-                    'description': 'Traditional ML model trained on historical data'
-                },
-                {
-                    'name': 'Logistic Regression',
-                    'accuracy': 68.5,
-                    'precision': 58.9,
-                    'recall': 59.2,
-                    'f1_score': 59.0,
-                    'description': 'Linear model for binary classification'
-                }
-            ],
-            'metrics': ['accuracy', 'precision', 'recall', 'f1_score']
+def generate_personalized_health_tips(features, prediction, probability):
+    """Generate personalized health improvement tips"""
+    tips = {
+        'diet': [],
+        'exercise': [],
+        'lifestyle': [],
+        'monitoring': [],
+        'medical': []
+    }
+    
+    # Diet recommendations based on glucose and BMI
+    glucose = features['glucose']
+    bmi = features['bmi']
+    age = features['age']
+    bp = features['bloodpressure']
+    
+    # Glucose-based diet tips
+    if glucose > 140:
+        tips['diet'].extend([
+            "Eliminate refined sugars and processed foods from your diet",
+            "Choose complex carbohydrates like whole grains, quinoa, and brown rice",
+            "Practice portion control with the plate method (1/2 vegetables, 1/4 lean protein, 1/4 complex carbs)",
+            "Eat small, frequent meals to maintain stable blood sugar"
+        ])
+    elif glucose > 100:
+        tips['diet'].extend([
+            "Reduce simple carbohydrates and sugary drinks",
+            "Include more fiber-rich foods like vegetables, fruits, and legumes",
+            "Choose lean proteins like fish, chicken, and plant-based options",
+            "Monitor carbohydrate intake and consider carb counting"
+        ])
+    else:
+        tips['diet'].extend([
+            "Maintain your current healthy eating patterns",
+            "Continue eating balanced meals with variety",
+            "Include antioxidant-rich foods like berries and leafy greens"
+        ])
+    
+    # BMI-based exercise tips
+    if bmi > 30:
+        tips['exercise'].extend([
+            "Start with low-impact activities like walking, swimming, or cycling",
+            "Aim for 150 minutes of moderate exercise per week",
+            "Include strength training 2-3 times per week",
+            "Consider working with a fitness professional for a personalized plan"
+        ])
+    elif bmi > 25:
+        tips['exercise'].extend([
+            "Increase daily physical activity with brisk walking",
+            "Try interval training to boost metabolism",
+            "Include resistance exercises to build muscle mass",
+            "Find activities you enjoy to maintain consistency"
+        ])
+    else:
+        tips['exercise'].extend([
+            "Maintain your current activity level",
+            "Mix cardio and strength training for optimal health",
+            "Try new activities to keep exercise interesting"
+        ])
+    
+    # Blood pressure-based lifestyle tips
+    if bp > 90:
+        tips['lifestyle'].extend([
+            "Reduce sodium intake to less than 2,300mg daily",
+            "Practice stress management techniques like meditation or yoga",
+            "Limit alcohol consumption",
+            "Ensure adequate sleep (7-9 hours nightly)"
+        ])
+    elif bp > 80:
+        tips['lifestyle'].extend([
+            "Monitor sodium intake and choose low-sodium options",
+            "Include potassium-rich foods like bananas and spinach",
+            "Practice deep breathing exercises"
+        ])
+    
+    # Age-based monitoring tips
+    if age > 45:
+        tips['monitoring'].extend([
+            "Monitor blood glucose levels more frequently",
+            "Schedule regular health check-ups every 6 months",
+            "Keep track of blood pressure readings",
+            "Monitor weight and BMI changes"
+        ])
+    else:
+        tips['monitoring'].extend([
+            "Annual health screenings are recommended",
+            "Monitor key health metrics monthly",
+            "Keep a health journal"
+        ])
+    
+    # Risk-based medical tips
+    if prediction == 1:
+        if probability > 0.8:
+            tips['medical'].extend([
+                "Schedule immediate consultation with healthcare provider",
+                "Request comprehensive diabetes screening (HbA1c, fasting glucose)",
+                "Discuss family history with your doctor",
+                "Consider consultation with an endocrinologist"
+            ])
+        else:
+            tips['medical'].extend([
+                "Schedule appointment with healthcare provider within 2 weeks",
+                "Request glucose tolerance test",
+                "Discuss lifestyle modifications with your doctor"
+            ])
+    else:
+        tips['medical'].extend([
+            "Continue regular annual check-ups",
+            "Maintain current health monitoring routine",
+            "Discuss family history during routine visits"
+        ])
+    
+    # General lifestyle tips
+    tips['lifestyle'].extend([
+        "Stay hydrated with 8-10 glasses of water daily",
+        "Quit smoking if applicable",
+        "Limit processed foods and eat whole foods",
+        "Manage stress through relaxation techniques"
+    ])
+    
+    return tips
+
+def generate_detailed_risk_analysis(features, prediction, probability):
+    """Generate detailed risk factor analysis"""
+    analysis = {
+        'overall_risk': {
+            'level': get_risk_category(probability),
+            'percentage': f"{probability * 100:.1f}%",
+            'description': get_risk_description(probability)
+        },
+        'risk_factors': [],
+        'protective_factors': [],
+        'recommendations': [],
+        'timeline': get_action_timeline(prediction, probability)
+    }
+    
+    # Analyze each risk factor
+    glucose = features['glucose']
+    bmi = features['bmi']
+    age = features['age']
+    bp = features['bloodpressure']
+    pregnancies = features['pregnancies']
+    insulin = features['insulin']
+    dpf = features['dpf']
+    
+    # High-risk factors
+    if glucose > 126:
+        analysis['risk_factors'].append({
+            'factor': 'Blood Glucose',
+            'value': glucose,
+            'level': 'High',
+            'impact': 'Major risk factor - indicates possible diabetes',
+            'action': 'Immediate medical evaluation required'
+        })
+    elif glucose > 100:
+        analysis['risk_factors'].append({
+            'factor': 'Blood Glucose',
+            'value': glucose,
+            'level': 'Elevated',
+            'impact': 'Pre-diabetic range - increased risk',
+            'action': 'Lifestyle modifications and monitoring'
+        })
+    
+    if bmi > 30:
+        analysis['risk_factors'].append({
+            'factor': 'BMI',
+            'value': bmi,
+            'level': 'High',
+            'impact': 'Obesity significantly increases diabetes risk',
+            'action': 'Weight management program recommended'
+        })
+    elif bmi > 25:
+        analysis['risk_factors'].append({
+            'factor': 'BMI',
+            'value': bmi,
+            'level': 'Elevated',
+            'impact': 'Overweight increases risk moderately',
+            'action': 'Gradual weight loss through diet and exercise'
+        })
+    
+    if age > 45:
+        analysis['risk_factors'].append({
+            'factor': 'Age',
+            'value': age,
+            'level': 'Moderate',
+            'impact': 'Age-related increased risk',
+            'action': 'Regular monitoring and healthy lifestyle'
+        })
+    
+    if bp > 90:
+        analysis['risk_factors'].append({
+            'factor': 'Blood Pressure',
+            'value': bp,
+            'level': 'High',
+            'impact': 'Hypertension compounds diabetes risk',
+            'action': 'Blood pressure management essential'
+        })
+    
+    # Protective factors
+    if glucose < 100:
+        analysis['protective_factors'].append({
+            'factor': 'Normal Blood Glucose',
+            'description': 'Your glucose levels are in the normal range'
+        })
+    
+    if bmi >= 18.5 and bmi < 25:
+        analysis['protective_factors'].append({
+            'factor': 'Healthy Weight',
+            'description': 'Your BMI is in the healthy range'
+        })
+    
+    if age < 35:
+        analysis['protective_factors'].append({
+            'factor': 'Young Age',
+            'description': 'Younger age provides protection against diabetes'
+        })
+    
+    return analysis
+
+def get_risk_description(probability):
+    """Get detailed risk description"""
+    if probability < 0.2:
+        return "Your current health parameters indicate a very low risk for diabetes. Continue your healthy lifestyle."
+    elif probability < 0.4:
+        return "You have a low risk for diabetes, but maintaining healthy habits is important for prevention."
+    elif probability < 0.6:
+        return "You have a moderate risk for diabetes. Lifestyle modifications can significantly reduce this risk."
+    elif probability < 0.8:
+        return "You have a high risk for diabetes. Immediate lifestyle changes and medical consultation are recommended."
+    else:
+        return "You have a very high risk for diabetes. Urgent medical evaluation and intervention are needed."
+
+def get_action_timeline(prediction, probability):
+    """Get recommended action timeline"""
+    if prediction == 1:
+        if probability > 0.8:
+            return {
+                'immediate': 'Schedule medical appointment within 48 hours',
+                'short_term': 'Begin strict lifestyle modifications within 1 week',
+                'long_term': 'Ongoing medical monitoring and management'
+            }
+        else:
+            return {
+                'immediate': 'Schedule medical appointment within 2 weeks',
+                'short_term': 'Implement lifestyle changes within 1 month',
+                'long_term': 'Regular health monitoring every 3-6 months'
+            }
+    else:
+        return {
+            'immediate': 'Continue current healthy practices',
+            'short_term': 'Maintain or improve current lifestyle',
+            'long_term': 'Annual health screenings and prevention focus'
         }
-        
-        return jsonify({
-            'success': True,
-            'data': comparison_data
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
 
 def generate_health_report(prediction_data):
     """Generate a comprehensive health report"""

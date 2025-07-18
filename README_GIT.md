@@ -1,43 +1,37 @@
 # 🩺 Diabetes Prediction Web App
 
-An advanced AI-powered web application for diabetes risk assessment using medical rule-based predictions. Built with Flask and modern web technologies - **no dataset dependency required!**
+An advanced AI-powered web application for diabetes risk assessment using machine learning. Built with Flask, scikit-learn, and modern web technologies.
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/flask-v2.0+-green.svg)
-![Chart.js](https://img.shields.io/badge/Chart.js-v3.0+-ff6384.svg)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.0+-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Deployment](https://img.shields.io/badge/deployment-ready-brightgreen.svg)
-
-> **🚀 Repository**: [GitHub](https://github.com/Jyothirmaye-pjl369/diabetes-prediction-webapp) | **📖 Deployment Guide**: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 
 ## 🌟 Features
 
 ### 🎯 Core Functionality
-- **Medical Rule-Based Predictions**: Based on established medical guidelines (no dataset required)
-- **User Input Only**: All predictions based purely on user-provided health data
+- **AI-Powered Prediction**: Random Forest model with 72% accuracy
 - **8 Health Parameters**: Comprehensive health assessment
-- **Real-time Health Tips**: Personalized recommendations based on input
+- **Real-time Validation**: Instant feedback on health indicators
 - **Multi-step Form**: User-friendly progressive form interface
 
-### 📊 Interactive Visualizations
-- **Feature Importance Charts**: Visual representation of health factor importance
-- **Outcome Analysis**: Interactive charts showing risk distributions
-- **Model Comparison**: Compare different prediction approaches
-- **Responsive Charts**: Built with Chart.js for smooth interactivity
+### 📊 Advanced Analytics
+- **Feature Importance**: Understand which factors matter most
+- **Risk Factor Analysis**: Detailed breakdown of health risks
+- **Confidence Scoring**: Multiple confidence calculation methods
+- **Medical Priority**: Actionable priority recommendations
 
 ### 🎨 Modern UI/UX
-- **Responsive Design**: Works perfectly on all devices
+- **Responsive Design**: Works on all devices
 - **Dark Mode**: Toggle between light and dark themes
 - **Progress Indicators**: Visual feedback during assessment
 - **Health Indicators**: Real-time parameter validation
-- **Intuitive Navigation**: Easy switching between prediction and visualization
 
 ### 📈 Professional Features
 - **Prediction History**: Track assessments over time
-- **Professional Reports**: Generate comprehensive health reports
-- **Export Functionality**: Download detailed assessment reports
-- **Medical Priority Levels**: Clear guidance on urgency of medical consultation
-- **Confidence Scoring**: Multiple confidence calculation methods
+- **Professional Reports**: Generate medical-grade reports
+- **Export Functionality**: Print and save results
+- **Result Sharing**: Share results with healthcare providers
 
 ## 🚀 Quick Start
 
@@ -49,7 +43,7 @@ An advanced AI-powered web application for diabetes risk assessment using medica
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Jyothirmaye-pjl369/diabetes-prediction-webapp.git
+   git clone https://github.com/yourusername/diabetes-prediction-webapp.git
    cd diabetes-prediction-webapp
    ```
 
@@ -88,7 +82,9 @@ diabetes_prediction/
 │   ├── test_enhanced_app.py  # Comprehensive tests
 │   └── test_form.py          # Form functionality tests
 └── docs/
-    └── README_ENHANCED.md    # Detailed documentation
+    ├── README.md             # This file
+    ├── README_ENHANCED.md    # Detailed documentation
+    └── IMPLEMENTATION_COMPARISON.md  # Feature comparison
 ```
 
 ## 🔧 API Endpoints
@@ -128,19 +124,25 @@ Predict diabetes risk based on health parameters.
 }
 ```
 
+#### `GET /history`
+Retrieve prediction history for the current session.
+
+#### `GET /report/<int:prediction_id>`
+Generate a professional report for a specific prediction.
+
 ## 🧪 Testing
 
 Run the comprehensive test suite:
 
 ```bash
 # Test API functionality
-python tests/test_api.py
+python test_api.py
 
 # Test enhanced features
-python tests/test_enhanced_app.py
+python test_enhanced_app.py
 
 # Test form functionality
-python tests/test_form.py
+python test_form.py
 ```
 
 ## 📊 Model Information
@@ -173,17 +175,41 @@ python app_simple.py
 
 ### Production Deployment
 The application is ready for deployment on platforms like:
-- **Render**: One-click deployment with `render.yaml` ([Guide](RENDER_DEPLOYMENT.md))
 - **Heroku**: Use the included `Procfile`
+- **Render**: Flask application deployment
 - **AWS/Google Cloud**: Container deployment
+- **Railway**: Simple deployment
 
-#### Deploy to Render
-1. Fork this repository
-2. Sign up at [render.com](https://render.com)
-3. Connect your GitHub repository
-4. Follow the [deployment guide](RENDER_DEPLOYMENT.md)
+### Environment Variables
+```bash
+FLASK_ENV=production
+SECRET_KEY=your-secret-key-here
+```
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+## 🔒 Security Features
+
+- **Input Validation**: Comprehensive server-side validation
+- **CSRF Protection**: Flask-WTF integration
+- **CORS Support**: Cross-origin resource sharing
+- **Session Management**: Secure session handling
+- **Error Handling**: Graceful error management
+
+## 🎯 Use Cases
+
+### For Healthcare Professionals
+- **Pre-screening Tool**: Quick diabetes risk assessment
+- **Patient Education**: Visual risk factor explanation
+- **Documentation**: Professional report generation
+
+### For Individuals
+- **Self-Assessment**: Personal health monitoring
+- **Health Awareness**: Understanding risk factors
+- **Lifestyle Guidance**: Personalized recommendations
+
+### For Researchers
+- **Model Validation**: Testing prediction algorithms
+- **Data Analysis**: Feature importance insights
+- **UI/UX Research**: Healthcare interface design
 
 ## 🤝 Contributing
 
@@ -192,6 +218,22 @@ The application is ready for deployment on platforms like:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## 📋 TODO
+
+- [ ] Add user authentication
+- [ ] Implement database storage
+- [ ] Add more ML models for comparison
+- [ ] Mobile app version
+- [ ] API documentation with Swagger
+- [ ] Internationalization (i18n)
+- [ ] Advanced analytics dashboard
+
+## 🐛 Known Issues
+
+- Session-based history (not persistent)
+- Limited to single-user sessions
+- Model requires periodic retraining
 
 ## 📜 License
 
@@ -203,6 +245,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **ML Library**: scikit-learn
 - **Web Framework**: Flask
 - **UI Icons**: Font Awesome
+- **Fonts**: Google Fonts (Inter)
+
+## 📞 Support
+
+For support, please open an issue in the GitHub repository or contact the development team.
 
 ---
 
