@@ -379,6 +379,11 @@ def health_check():
         'timestamp': datetime.datetime.now().isoformat()
     })
 
+@app.route('/health')
+def health():
+    """Health endpoint for deployment platforms"""
+    return jsonify({'status': 'ok', 'message': 'App is healthy'})
+
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
     """Generate a comprehensive health report"""
